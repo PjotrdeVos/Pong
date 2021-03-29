@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Pong</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+    var config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 640,
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        },
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: false
+            }
+        }
+    };
+
+    var game = new Phaser.Game(config);
+    let ball;
+    let Player1;
+    let Player2;
+    let isGameStarted = false;
+    let cursors;
+    const paddleSpeed = 300;
+    const keys = {};
+    let player1V;
+    let player2V;
+
+    function preload ()
+    {
+        this.load.image('paddle','../assets/Paddle.png');
+        this.load.image('ball', '../assets/ball.png');
+    }
+
+    function create () {
+        ball = this.physics.add.sprite(
+            this.physics.world.bounds.width / 2,
+            this.physics.world.bounds.height / 2,
+            'ball'
+        )
+        ball.setCollideWorldBounds(true);
+        ball.setBounce(1, 1);
+
+        Player1 = this.physics.add.sprite(
+            this.physics.world.bounds.width - (ball.body.width / 2 + 1),
+            this.physics.world.bounds.height / 2,
+            'paddle'
+        );
+        Player1.setImmovable(true);
+        Player1.setCollideWorldBounds(true);
+
+        Player2 = this.physics.add.sprite(
+            ball.body.width / 2 + 1,
+            this.physics.world.bounds.height / 2,
+            'paddle'
+        );
+        Player2.setImmovable(true);
+        Player2.setCollideWorldBounds(true);
+
+        cursors = this.input.keyboard.createCursorKeys();
+        keys.w = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+        keys.s = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+
+        this.physics.add.collider(ball, Player1);
+        this.physics.add.collider(ball, Player2);
+
+
+        player1VictoryText = this.add.text(
+            this.physics.world.bounds.width / 2,
+            this.physics.world.bounds.height / 2,
+            'Point for player 1!',
+            {
+                fontFamily: 'Monaco, Courier, monospace',
+                fontSize: '50px',
+                fill: '#fff'
+            }
+        );
+
+        player1VictoryText.setOrigin(0.5);
+
+        player1VictoryText.setVisible(false);
+
+        player2VictoryText = this.add.text(
+            this.physics.world.bounds.width / 2,
+            this.physics.world.bounds.height / 2,
+            'Point for player 2!',
+            {
+                fontFamily: 'Monaco, Courier, monospace',
+                fontSize: '50px',
+                fill: '#fff'
+            }
+        );
+
+        player2VictoryText.setOrigin(0.5);
+
+        player2VictoryText.setVisible(false);
+    }
+
+    function update () {
+
+        if (!isGameStarted) {
+            const initialVelocityX = 100;
+            const initialVelocityY = 100;
+            ball.setVelocityX(initialVelocityX);
+            ball.setVelocityY(initialVelocityY);
+            isGameStarted = true;
+        }
+
+        if (ball.body.x > Player1.body.x){
+            console.log('Player 2 Wins!');
+            ball.setVelocityY(0);
+            ball.setVelocityX(0);
+        }
+        if (ball.body.x < Player2.body.x){
+            console.log('Player 1 Wins!');
+            ball.setVelocityY(0);
+            ball.setVelocityX(0);
+
+        }
+
+        Player1.body.setVelocityY(0);
+        Player2.body.setVelocityY(0);
+        if(cursors.up.isDown) {
+            Player1.body.setVelocityY(-paddleSpeed);
+        }
+        if(cursors.down.isDown){
+            Player1.body.setVelocityY(paddleSpeed);
+        }
+        if(keys.w.isDown){
+            Player2.body.setVelocityY(-paddleSpeed);
+        }
+        if(keys.s.isDown){
+            Player2.body.setVelocityY(paddleSpeed);
+        }
+
+        if(ball.body.velocity.y > paddleSpeed){
+            ball.body.setVelocityY(paddleSpeed);
+        }
+        if(ball.body.velocity.y < -paddleSpeed) {
+            ball.body.setVelocityY(-paddleSpeed);
+        }
+    }
+</script>
+
+</body>
+</html>
